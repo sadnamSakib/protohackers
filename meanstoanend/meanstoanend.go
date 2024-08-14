@@ -1,6 +1,7 @@
 package meanstoanend
 
 import (
+	"encoding/binary"
 	"fmt"
 	"net"
 )
@@ -8,7 +9,6 @@ import (
 type Message []byte
 
 const (
-	// Message types
 	INSERT = iota
 	QUERY
 )
@@ -21,22 +21,41 @@ func (m Message) getMethod() int {
 	}
 }
 func (m Message) getValues() (int, int) {
-	firstVal := 0
-	for i := 5; i >= 1; i-- {
-		firstVal = firstVal*10 + int(m[i]-'0')
-	}
-	return 0, 0
+
+	firstVal := int(binary.BigEndian.Uint32(m[1:5]))
+	secondVal := int(binary.BigEndian.Uint32(m[5:9]))
+	return firstVal, secondVal
+
 }
 
 func handleRequest(conn net.Conn) {
 	defer conn.Close()
 	m := make(Message, 9)
-	_, err := conn.Read(m)
-	if err != nil {
-		fmt.Println("Error: ", err.Error())
-		return
+	for i := range m {
+		rawData := make([]byte, 1)
+		_, err := conn.Read(rawData)
+		if err != nil {
+			fmt.Println("Error: ", err.Error())
+			return
+		}
+		fmt.Println("Received data: ", rawData)
+		fmt.Println("Received data: ", string(rawData))
+		m[i] = rawData[0]
 	}
-	fmt.Println("Received message: ", m)
+
+	if m.getMethod() == INSERT {
+		fmt.Println("Inserting: ")
+		firstVal, secondVal := m.getValues()
+		fmt.Println("First value: ", firstVal)
+		fmt.Println("Second value: ", secondVal)
+	} else {
+		fmt.Println("Querying: ")
+		firstVal, secondVal := m.getValues()
+		fmt.Println("First value: ", firstVal)
+		fmt.Println("Second value: ", secondVal)
+	}
+
+	fmt.Println("Received message: ", string(m))
 
 }
 
