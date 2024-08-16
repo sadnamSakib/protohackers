@@ -37,11 +37,12 @@ jobs:
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/tcpserver:latest
             
             # Stop and remove the existing container, if it exists
-            if [ "$(docker ps -q -f name=tcp-server)" ]; then
-                sudo docker stop tcp-server || true
-                sudo docker rm tcp-server || true
+            CONTAINER_ID=$(sudo docker ps -aqf "name=tcp-server")
+            if [ ! -z "$CONTAINER_ID" ]; then
+                sudo docker stop tcp-server
+                sudo docker rm tcp-server
             fi
 
             # Run the new container
             sudo docker run -d --name tcp-server -p 80:8080 ${{ secrets.DOCKER_USERNAME }}/tcpserver:latest
-          
+          EOF
