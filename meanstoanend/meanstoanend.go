@@ -25,10 +25,10 @@ func (m Message) getMethod() int {
 		return QUERY
 	}
 }
-func (m Message) getValues() (int, int) {
+func (m Message) getValues() (int32, int32) {
 
-	firstVal := int(binary.BigEndian.Uint32(m[1:5]))
-	secondVal := int(binary.BigEndian.Uint32(m[5:]))
+	firstVal := int32(binary.BigEndian.Uint32(m[1:5]))
+	secondVal := int32(binary.BigEndian.Uint32(m[5:]))
 	return firstVal, secondVal
 
 }
@@ -51,8 +51,7 @@ func handleRequest(conn net.Conn, d *[]Data) {
 			mean := 0
 			num := 0
 			for _, data := range *d {
-				if data.Timestamp >= int32(firstVal) && data.Timestamp <= int32(secondVal) {
-
+				if data.Timestamp >= firstVal && data.Timestamp <= int32(secondVal) {
 					mean += int(data.Price)
 					num += 1
 				}
@@ -63,7 +62,11 @@ func handleRequest(conn net.Conn, d *[]Data) {
 				mean = mean / num
 			}
 
-			conn.Write([]byte{byte(mean >> 24), byte(mean >> 16), byte(mean >> 8), byte(mean)})
+			b := make([]byte, 4)
+			binary.BigEndian.PutUint32(b, uint32(mean))
+			if _, err := conn.Write(b); err != nil {
+				break
+			}
 
 		} else {
 			return
