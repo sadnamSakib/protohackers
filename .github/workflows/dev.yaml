@@ -32,7 +32,7 @@ jobs:
 
       - name: SSH into EC2 and deploy
         run: |
-          ssh -o StrictHostKeyChecking=no -i private_key ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no -i private_key ${{ secrets.EC2_HOST }}@${{ secrets.EC2_USER }}
             docker login -u "${{ secrets.DOCKER_USERNAME }}" -p "${{ secrets.DOCKER_PASSWORD }}"
             docker pull ${{ secrets.DOCKER_USERNAME }}/tcpserver:latest
             docker stop tcp-server || true
