@@ -4,17 +4,16 @@ import (
 	"fmt"
 	"net"
 	"strings"
-	"sync"
 )
 
-func process(s string, sm *sync.Map) string {
-	fmt.Println("Processing ", s)
+func process(s string, sm map[string]string) string {
+	s, _ = strings.CutSuffix(s, "\n")
 	if strings.Contains(s, "=") {
 		split := strings.Split(s, "=")
-		(*sm).Store(split[0], split[1])
+		(sm)[split[0]] = split[1]
 		return "i"
 	} else {
-		value, ok := (*sm).Load(s)
+		value, ok := sm[s]
 		if ok {
 			return fmt.Sprintf("%s=%s", s, value)
 		} else {
@@ -23,8 +22,8 @@ func process(s string, sm *sync.Map) string {
 	}
 }
 
-func handleRequest(conn *net.UDPConn, sm *sync.Map) {
-	fmt.Println("Map before : ", *sm)
+func handleRequest(conn *net.UDPConn, sm map[string]string) {
+
 	buf := make([]byte, 1024)
 	n, addr, err := conn.ReadFromUDP(buf)
 	if err != nil {
@@ -32,11 +31,12 @@ func handleRequest(conn *net.UDPConn, sm *sync.Map) {
 		return
 	}
 
-	fmt.Println("Received ", string(buf[0:n]), " from ", addr)
 	ret := process(string(buf[0:n]), sm)
 	if ret == "i" {
 		fmt.Println("Stored")
+		fmt.Println(sm)
 	} else {
+		fmt.Println(sm)
 		_, err = conn.WriteToUDP([]byte(ret), addr)
 		if err != nil {
 			fmt.Println("Error: ", err)
@@ -44,18 +44,26 @@ func handleRequest(conn *net.UDPConn, sm *sync.Map) {
 		}
 		fmt.Println("Sent ", ret, " to ", addr)
 	}
-	fmt.Println("Map after : ", *sm)
+
 }
 
 func Run() {
 
-	conn, err := net.ListenUDP("udp", &net.UDPAddr{Port: 8080})
+	port := 8080
+	addr, err := net.ResolveUDPAddr("udp", fmt.Sprintf("0.0.0.0:%d", port))
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("Error: ", err)
+		return
 	}
-	fmt.Println("Connecting to UDP server on port 80")
+	conn, err := net.ListenUDP("udp", addr)
+	if err != nil {
+		fmt.Println("Error: ", err)
+		return
+	}
+
+	fmt.Println("Connecting to UDP server on port 8080")
 	defer conn.Close()
-	sm := new(sync.Map)
+	sm := make(map[string]string)
 	for {
 		handleRequest(conn, sm)
 	}
