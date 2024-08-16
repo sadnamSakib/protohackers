@@ -55,11 +55,8 @@ func handleRequest(conn net.Conn) {
 				if data.Timestamp >= firstVal && data.Timestamp <= int32(secondVal) {
 					mean += int(data.Price)
 					num += 1
-					fmt.Println("Data:", data.Timestamp, data.Price)
-					fmt.Println("Mean:", mean, num)
 				}
 			}
-			fmt.Printf("Final result: %d/%d", mean, num)
 			if num <= 0 {
 				mean = 0
 			} else {
