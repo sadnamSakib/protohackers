@@ -45,6 +45,7 @@ func handleRequest(conn net.Conn) {
 
 	if m.getMethod() == INSERT {
 		fmt.Println("Inserting: ")
+		fmt.Println("Hello, world!")
 		firstVal, secondVal := m.getValues()
 		fmt.Println("First value: ", firstVal)
 		fmt.Println("Second value: ", secondVal)
