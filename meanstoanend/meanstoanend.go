@@ -3,6 +3,7 @@ package meanstoanend
 import (
 	"encoding/binary"
 	"fmt"
+	"io"
 	"net"
 )
 
@@ -36,17 +37,9 @@ func handleRequest(conn net.Conn, d *[]Data) {
 	defer conn.Close()
 	for {
 		m := make(Message, 9)
-		for i := range m {
-			rawData := make([]byte, 1)
-			_, err := conn.Read(rawData)
-			if err != nil {
-				fmt.Println("Error: ", err.Error())
-				return
-			}
-
-			m[i] = rawData[0]
+		if _, err := io.ReadFull(conn, m); err != nil {
+			break
 		}
-
 		if m.getMethod() == INSERT {
 
 			firstVal, secondVal := m.getValues()
