@@ -37,8 +37,8 @@ jobs:
 
           docker login -u "${{ secrets.DOCKER_USERNAME }}" -p "${{ secrets.DOCKER_PASSWORD }}"
           docker pull ${{ secrets.DOCKER_USERNAME }}/tcpserver:latest
-          docker stop your-container-name || true
-          docker rm your-container-name || true
-          docker run -p 80:8080 ${{ secrets.DOCKER_USERNAME }}/tcpserver:latest
+          docker stop tcp-server || true
+          docker rm tcp-server || true
+          docker run -d --name tcp-server -p 80:8080 ${{ secrets.DOCKER_USERNAME }}/tcpserver:latest
 
       
