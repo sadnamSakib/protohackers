@@ -34,47 +34,49 @@ func (m Message) getValues() (int, int) {
 
 func handleRequest(conn net.Conn, d *[]Data) {
 	defer conn.Close()
-	m := make(Message, 9)
-	for i := range m {
-		rawData := make([]byte, 1)
-		_, err := conn.Read(rawData)
-		if err != nil {
-			fmt.Println("Error: ", err.Error())
+	for {
+		m := make(Message, 9)
+		for i := range m {
+			rawData := make([]byte, 1)
+			_, err := conn.Read(rawData)
+			if err != nil {
+				fmt.Println("Error: ", err.Error())
+				return
+			}
+
+			m[i] = rawData[0]
+		}
+
+		if m.getMethod() == INSERT {
+
+			firstVal, secondVal := m.getValues()
+			*d = append(*d, Data{int32(firstVal), int32(secondVal)})
+
+		} else if m.getMethod() == QUERY {
+
+			firstVal, secondVal := m.getValues()
+			mean := 0
+			num := 0
+			for _, data := range *d {
+				if data.Timestamp >= int32(firstVal) && data.Timestamp <= int32(secondVal) {
+
+					mean += int(data.Price)
+					num++
+				}
+			}
+			if num == 0 {
+				mean = 0
+			} else {
+				mean = mean / num
+			}
+
+			conn.Write([]byte{byte(mean >> 24), byte(mean >> 16), byte(mean >> 8), byte(mean)})
+
+		} else {
 			return
 		}
-		fmt.Println("Received data: ", rawData)
-		fmt.Println("Received data: ", string(rawData))
-		m[i] = rawData[0]
-	}
-
-	if m.getMethod() == INSERT {
-		fmt.Println("Inserting: ")
-		firstVal, secondVal := m.getValues()
-		*d = append(*d, Data{int32(firstVal), int32(secondVal)})
-		fmt.Println(d)
-	} else {
-		fmt.Println("Querying: ")
-		firstVal, secondVal := m.getValues()
-		mean := 0
-		num := 0
-		for _, data := range *d {
-			if data.Timestamp >= int32(firstVal) && data.Timestamp <= int32(secondVal) {
-				fmt.Println(data)
-				mean += int(data.Price)
-				num++
-			}
-		}
-		if num == 0 {
-			mean = 0
-		} else {
-			mean = mean / num
-		}
-		fmt.Println("Mean: ", mean)
-		conn.Write([]byte{byte(mean >> 24), byte(mean >> 16), byte(mean >> 8), byte(mean)})
 
 	}
-
-	fmt.Println("Received message: ", string(m))
 
 }
 
@@ -84,7 +86,7 @@ func Run() {
 		fmt.Println(err)
 		return
 	}
-	fmt.Println("Listening on port 8080")
+
 	d := make([]Data, 0)
 
 	for {
@@ -93,7 +95,7 @@ func Run() {
 			fmt.Println("Error: ", err.Error())
 			return
 		}
-		fmt.Println("Accepted connection.")
+
 		go handleRequest(connection, &d)
 	}
 }
