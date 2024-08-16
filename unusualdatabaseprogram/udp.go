@@ -61,7 +61,7 @@ func Run() {
 		return
 	}
 
-	fmt.Println("Connecting to UDP server on port 8080")
+	fmt.Println("Connecting to UDP  on port 8080")
 	defer conn.Close()
 	sm := make(map[string]string)
 	for {
