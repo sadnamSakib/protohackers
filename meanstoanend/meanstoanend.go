@@ -27,7 +27,7 @@ func (m Message) getMethod() int {
 func (m Message) getValues() (int, int) {
 
 	firstVal := int(binary.BigEndian.Uint32(m[1:5]))
-	secondVal := int(binary.BigEndian.Uint32(m[5:9]))
+	secondVal := int(binary.BigEndian.Uint32(m[5:]))
 	return firstVal, secondVal
 
 }
