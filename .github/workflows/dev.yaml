@@ -36,6 +36,6 @@ jobs:
             sudo systemctl start docker
             docker login -u "${{ secrets.DOCKER_USERNAME }}" -p "${{ secrets.DOCKER_PASSWORD }}"
             docker pull ${{ secrets.DOCKER_USERNAME }}/tcpserver:latest
-            docker stop your-container-name || true
-            docker rm your-container-name || true
-            docker run -p 80:8080 ${{ secrets.DOCKER_USERNAME }}/tcpserver:latest
+            docker stop protohackers || true
+            docker rm protohackers || true
+            docker run -d --name protohackers -p 80:8080 ${{ secrets.DOCKER_USERNAME }}/tcpserver:latest
