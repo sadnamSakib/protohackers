@@ -1,10 +1,11 @@
 package main
 
-import "protohacker/meanstoanend"
+import "protohacker/unusualdatabaseprogram"
 
 func main() {
 	// smoketest.Run()
-	meanstoanend.Run()
 	// primetime.Run()
+	// meanstoanend.Run()
+	unusualdatabaseprogram.Run()
 
 }
