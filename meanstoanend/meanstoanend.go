@@ -61,7 +61,7 @@ func handleRequest(conn net.Conn, d *[]Data) {
 				if data.Timestamp >= int32(firstVal) && data.Timestamp <= int32(secondVal) {
 
 					mean += int(data.Price)
-					num++
+					num += 1
 				}
 			}
 			if num == 0 {
