@@ -33,15 +33,15 @@ jobs:
       - name: SSH into EC2 and deploy
         run: |
           ssh -o StrictHostKeyChecking=no -i private_key ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
-            docker login -u "${{ secrets.DOCKER_USERNAME }}" -p "${{ secrets.DOCKER_PASSWORD }}"
-            docker pull ${{ secrets.DOCKER_USERNAME }}/tcpserver:latest
+            echo "${{ secrets.DOCKER_PASSWORD }}" | sudo docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/tcpserver:latest
             
             # Stop and remove the existing container, if it exists
             if [ "$(docker ps -q -f name=tcp-server)" ]; then
-                docker stop tcp-server || true
-                docker rm tcp-server || true
+                sudo docker stop tcp-server || true
+                sudo docker rm tcp-server || true
             fi
 
             # Run the new container
-            docker run -d --name tcp-server -p 80:8080 ${{ secrets.DOCKER_USERNAME }}/tcpserver:latest
+            sudo docker run -d --name tcp-server -p 80:8080 ${{ secrets.DOCKER_USERNAME }}/tcpserver:latest
           
