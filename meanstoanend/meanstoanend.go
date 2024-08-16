@@ -33,8 +33,9 @@ func (m Message) getValues() (int32, int32) {
 
 }
 
-func handleRequest(conn net.Conn, d *[]Data) {
+func handleRequest(conn net.Conn) {
 	defer conn.Close()
+	d := make([]Data, 0)
 	for {
 		m := make(Message, 9)
 		if _, err := io.ReadFull(conn, m); err != nil {
@@ -43,20 +44,23 @@ func handleRequest(conn net.Conn, d *[]Data) {
 		if m.getMethod() == INSERT {
 
 			firstVal, secondVal := m.getValues()
-			*d = append(*d, Data{int32(firstVal), int32(secondVal)})
+			d = append(d, Data{(firstVal), (secondVal)})
 
 		} else if m.getMethod() == QUERY {
 
 			firstVal, secondVal := m.getValues()
 			mean := 0
 			num := 0
-			for _, data := range *d {
+			for _, data := range d {
 				if data.Timestamp >= firstVal && data.Timestamp <= int32(secondVal) {
 					mean += int(data.Price)
 					num += 1
+					fmt.Println("Data:", data.Timestamp, data.Price)
+					fmt.Println("Mean:", mean, num)
 				}
 			}
-			if num == 0 {
+			fmt.Printf("Final result: %d/%d", mean, num)
+			if num <= 0 {
 				mean = 0
 			} else {
 				mean = mean / num
@@ -83,14 +87,12 @@ func Run() {
 		return
 	}
 
-	d := make([]Data, 0)
-
 	for {
 		connection, err := listen.Accept()
 		if err != nil {
 			fmt.Println("Error: ", err.Error())
 			return
 		}
-		go handleRequest(connection, &d)
+		go handleRequest(connection)
 	}
 }
