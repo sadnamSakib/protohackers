@@ -95,7 +95,6 @@ func Run() {
 			fmt.Println("Error: ", err.Error())
 			return
 		}
-
 		go handleRequest(connection, &d)
 	}
 }
