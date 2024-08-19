@@ -11,13 +11,15 @@ func process(s string, sm map[string]string) string {
 	if strings.Contains(s, "=") {
 		split := strings.Split(s, "=")
 		if split[0] != "version" {
-
 			(sm)[split[0]] = split[1]
 		} else {
 			return "ignore"
 		}
 		return "i"
 	} else {
+		if s == "version" {
+			fmt.Println("Version requested")
+		}
 		return fmt.Sprintf("%s=%s", s, sm[s])
 	}
 }
@@ -45,7 +47,6 @@ func handleRequest(conn *net.UDPConn, sm map[string]string) {
 			fmt.Println("Error: ", err)
 			return
 		}
-		fmt.Println("Response : ", string([]byte(ret)))
 
 	}
 
