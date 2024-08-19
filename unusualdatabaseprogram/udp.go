@@ -13,6 +13,8 @@ func process(s string, sm map[string]string) string {
 		if split[0] != "version" {
 
 			(sm)[split[0]] = split[1]
+		} else {
+			return "ignore"
 		}
 		return "i"
 	} else {
@@ -31,9 +33,11 @@ func handleRequest(conn *net.UDPConn, sm map[string]string) {
 
 	ret := process(string(buf[0:n]), sm)
 	if ret == "i" {
-		if string(buf[n:]) == "version" {
-			return
-		}
+		fmt.Println("Inserted")
+		return
+	} else if ret == "ignore" {
+		fmt.Println("Ignored")
+		return
 	} else {
 
 		_, err = conn.WriteToUDP([]byte(ret), addr)
@@ -41,6 +45,7 @@ func handleRequest(conn *net.UDPConn, sm map[string]string) {
 			fmt.Println("Error: ", err)
 			return
 		}
+		fmt.Println("Response : ", string([]byte(ret)))
 
 	}
 
