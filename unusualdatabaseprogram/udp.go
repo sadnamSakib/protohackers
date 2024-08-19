@@ -8,7 +8,9 @@ import (
 
 func process(s string, sm map[string]string) string {
 	s, _ = strings.CutSuffix(s, "\n")
-	if strings.Contains(s, "=") {
+	if s == "version" {
+		return "version=1.0"
+	} else if strings.Contains(s, "=") {
 		split := strings.Split(s, "=")
 		(sm)[split[0]] = split[1]
 		return "i"
@@ -34,15 +36,15 @@ func handleRequest(conn *net.UDPConn, sm map[string]string) {
 	ret := process(string(buf[0:n]), sm)
 	if ret == "i" {
 		fmt.Println("Stored")
-		fmt.Println(sm)
+
 	} else {
-		fmt.Println(sm)
+
 		_, err = conn.WriteToUDP([]byte(ret), addr)
 		if err != nil {
 			fmt.Println("Error: ", err)
 			return
 		}
-		fmt.Println("Sent ", ret, " to ", addr)
+
 	}
 
 }

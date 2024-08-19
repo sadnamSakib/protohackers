@@ -44,5 +44,5 @@ jobs:
             fi
 
             # Run the new container
-            sudo docker run -d --name tcp-server -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/tcpserver:latest
+            sudo docker run -d --name tcp-server -p 8080:8080/udp ${{ secrets.DOCKER_USERNAME }}/tcpserver:latest
           EOF
