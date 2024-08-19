@@ -8,22 +8,15 @@ import (
 
 func process(s string, sm map[string]string) string {
 	s, _ = strings.CutSuffix(s, "\n")
-	if s == "version" {
-		return "version=1.0"
-	} else if strings.Contains(s, "=") {
+	if strings.Contains(s, "=") {
 		split := strings.Split(s, "=")
-		if split[0] == "version" {
-			return "version="
+		if split[0] != "version" {
+
+			(sm)[split[0]] = split[1]
 		}
-		(sm)[split[0]] = split[1]
 		return "i"
 	} else {
-		value, ok := sm[s]
-		if ok {
-			return fmt.Sprintf("%s=%s", s, value)
-		} else {
-			return fmt.Sprintf("%s=", s)
-		}
+		return fmt.Sprintf("%s=%s", s, sm[s])
 	}
 }
 
@@ -39,7 +32,6 @@ func handleRequest(conn *net.UDPConn, sm map[string]string) {
 	ret := process(string(buf[0:n]), sm)
 	if ret == "i" {
 		fmt.Println("Stored")
-
 	} else {
 
 		_, err = conn.WriteToUDP([]byte(ret), addr)
@@ -68,7 +60,9 @@ func Run() {
 
 	fmt.Println("Connecting to UDP  on port 8080")
 	defer conn.Close()
-	sm := make(map[string]string)
+	sm := map[string]string{
+		"version": "Ken's Key-Value Store 1.0.0",
+	}
 	for {
 		handleRequest(conn, sm)
 	}
