@@ -9,9 +9,9 @@ import (
 func process(s string, sm map[string]string) string {
 	s, _ = strings.CutSuffix(s, "\n")
 	if strings.Contains(s, "=") {
-		split := strings.Split(s, "=")
-		if split[0] != "version" {
-			(sm)[split[0]] = split[1]
+		f, l, _ := strings.Cut(s, "=")
+		if f != "version" {
+			(sm)[f] = l
 		} else {
 			return "ignored."
 		}
