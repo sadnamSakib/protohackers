@@ -31,7 +31,9 @@ func handleRequest(conn *net.UDPConn, sm map[string]string) {
 
 	ret := process(string(buf[0:n]), sm)
 	if ret == "i" {
-		fmt.Println("Stored")
+		if string(buf[n:]) == "version" {
+			return
+		}
 	} else {
 
 		_, err = conn.WriteToUDP([]byte(ret), addr)
