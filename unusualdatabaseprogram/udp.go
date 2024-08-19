@@ -13,7 +13,7 @@ func process(s string, sm map[string]string) string {
 		if split[0] != "version" {
 			(sm)[split[0]] = split[1]
 		} else {
-			return "ignored"
+			return "ignored."
 		}
 		return "i"
 	} else {
