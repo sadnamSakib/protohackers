@@ -61,7 +61,7 @@ func Run() {
 	fmt.Println("Connecting to UDP  on port 8080")
 	defer conn.Close()
 	sm := map[string]string{
-		"version": "Ken's Key-Value Store 1.0.0",
+		"version": "Ken's Key-Value Store 1.0",
 	}
 	for {
 		handleRequest(conn, sm)
