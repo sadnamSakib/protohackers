@@ -12,6 +12,9 @@ func process(s string, sm map[string]string) string {
 		return "version=1.0"
 	} else if strings.Contains(s, "=") {
 		split := strings.Split(s, "=")
+		if split[0] == "version" {
+			return "version="
+		}
 		(sm)[split[0]] = split[1]
 		return "i"
 	} else {
