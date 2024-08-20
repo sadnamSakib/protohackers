@@ -6,25 +6,23 @@ import (
 	"strings"
 )
 
-func process(s string, sm map[string]string) string {
-	s, _ = strings.CutSuffix(s, "\n")
-	if strings.Contains(s, "=") {
-		f, l, _ := strings.Cut(s, "=")
+func process(s string, sm *map[string]string) string {
+
+	f, l, ok := strings.Cut(s, "=")
+	if ok {
 		if f != "version" {
-			(sm)[f] = l
+			(*sm)[f] = l
 		} else {
 			return "ignored."
 		}
 		return "i"
 	} else {
-		if s == "version" {
-			fmt.Println("Version requested")
-		}
-		return fmt.Sprintf("%s=%s", s, sm[s])
+
+		return fmt.Sprintf("%s=%s", s, (*sm)[s])
 	}
 }
 
-func handleRequest(conn *net.UDPConn, sm map[string]string) {
+func handleRequest(conn *net.UDPConn, sm *map[string]string) {
 
 	buf := make([]byte, 1024)
 	n, addr, err := conn.ReadFromUDP(buf)
@@ -33,12 +31,12 @@ func handleRequest(conn *net.UDPConn, sm map[string]string) {
 		return
 	}
 
-	ret := process(string(buf[0:n]), sm)
+	ret := process(string(buf[:n]), sm)
 	if ret == "i" {
-		fmt.Println("Inserted")
+
 		return
 	} else if ret == "ignore" {
-		fmt.Println("Ignored")
+
 		return
 	} else {
 
@@ -72,7 +70,7 @@ func Run() {
 		"version": "Ken's Key-Value Store 1.0",
 	}
 	for {
-		handleRequest(conn, sm)
+		handleRequest(conn, &sm)
 	}
 
 }
