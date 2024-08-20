@@ -35,7 +35,7 @@ func nameResolution(conn net.Conn, connections map[string]net.Conn) string {
 		for _, roomMembers := range connections {
 			roomMembers.Write([]byte(fmt.Sprintf("* %s has entered the room\n", clientName)))
 		}
-		fmt.Printf("Server: * %s has entered the room\n", clientName)
+		fmt.Printf("Server: * %v has entered the room\n", clientName)
 		connections[clientName] = conn
 		conn.Write([]byte(roomMembersMessage))
 		return clientName
@@ -54,7 +54,7 @@ func handleRequest(conn net.Conn, connections map[string]net.Conn) {
 		for _, roomMembers := range connections {
 			roomMembers.Write([]byte(fmt.Sprintf("* %s has left the room\n", name)))
 		}
-		fmt.Printf("Server: * %s has left the room\n", name)
+		fmt.Printf("Server: * %v has left the room\n", name)
 	}()
 
 	for {
@@ -66,7 +66,7 @@ func handleRequest(conn net.Conn, connections map[string]net.Conn) {
 		}
 		clientMessage := string(buf[:n])
 		fmt.Println("Client: ", clientMessage)
-		fmt.Printf("[%s] %s\n", name, clientMessage)
+		fmt.Printf("[%v] %v\n", name, clientMessage)
 		if clientMessage != "" {
 			for otherClients, roomMembers := range connections {
 				if name != otherClients {
