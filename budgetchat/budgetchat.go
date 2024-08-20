@@ -15,6 +15,7 @@ func nameResolution(conn net.Conn, connections map[string]net.Conn) string {
 		return ""
 	}
 	clientName := string(buf[:n])
+	fmt.Println("Client : ", clientName)
 	clientName, _ = strings.CutSuffix(clientName, "\n")
 	clientName, _ = strings.CutSuffix(clientName, "\r")
 	clientName = strings.TrimSuffix(clientName, " ")
@@ -34,6 +35,7 @@ func nameResolution(conn net.Conn, connections map[string]net.Conn) string {
 		for _, roomMembers := range connections {
 			roomMembers.Write([]byte(fmt.Sprintf("* %s has entered the room\n", clientName)))
 		}
+		fmt.Printf("Server: * %s has entered the room\n", clientName)
 		connections[clientName] = conn
 		conn.Write([]byte(roomMembersMessage))
 		return clientName
@@ -44,6 +46,7 @@ func nameResolution(conn net.Conn, connections map[string]net.Conn) string {
 func handleRequest(conn net.Conn, connections map[string]net.Conn) {
 	serverMessage := "Welcome to budgetchat! What shall I call you?\n"
 	conn.Write([]byte(serverMessage))
+	fmt.Println("Server : ", serverMessage)
 	name := nameResolution(conn, connections)
 	if name == "" {
 		return
@@ -54,7 +57,9 @@ func handleRequest(conn net.Conn, connections map[string]net.Conn) {
 		for _, roomMembers := range connections {
 			roomMembers.Write([]byte(fmt.Sprintf("* %s has left the room\n", name)))
 		}
+		fmt.Printf("Server: * %s has left the room\n", name)
 	}()
+
 	for {
 		buf := make([]byte, 1024)
 		n, err := conn.Read(buf)
@@ -62,9 +67,9 @@ func handleRequest(conn net.Conn, connections map[string]net.Conn) {
 			fmt.Println(err)
 			return
 		}
-		clientMessage, _ := strings.CutSuffix(string(buf[:n]), "\n")
-		clientMessage, _ = strings.CutSuffix(clientMessage, "\r")
-		clientMessage = strings.TrimSuffix(clientMessage, " ")
+		clientMessage := string(buf[:n])
+		fmt.Println("Client: ", clientMessage)
+		fmt.Printf("[%s] %s\n", name, clientMessage)
 		if clientMessage != "" {
 			for otherClients, roomMembers := range connections {
 				if name != otherClients {
@@ -72,6 +77,7 @@ func handleRequest(conn net.Conn, connections map[string]net.Conn) {
 				}
 			}
 		} else {
+
 			break
 		}
 	}
