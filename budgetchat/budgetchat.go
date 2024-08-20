@@ -16,7 +16,7 @@ func nameResolution(conn net.Conn, connections map[string]net.Conn) string {
 	}
 	clientName := string(buf[:n])
 	fmt.Println("Client : ", clientName)
-	pattern := `^[a-zA-Z0-9]{1,16}$`
+	pattern := `^[a-zA-Z0-9]+$`
 	r := regexp.MustCompile(pattern)
 	if !r.MatchString(clientName) {
 		conn.Write([]byte("Invalid name."))
@@ -46,12 +46,12 @@ func handleRequest(conn net.Conn, connections map[string]net.Conn) {
 	fmt.Println("Server : ", serverMessage)
 	name := nameResolution(conn, connections)
 	defer func() {
-		conn.Close()
 		delete(connections, name)
 		for _, roomMembers := range connections {
 			roomMembers.Write([]byte(fmt.Sprintf("* %s has left the room\n", name)))
 		}
 		fmt.Printf("Server: * %v has left the room\n", name)
+		conn.Close()
 	}()
 
 	for {
