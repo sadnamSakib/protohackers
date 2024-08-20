@@ -48,9 +48,6 @@ func handleRequest(conn net.Conn, connections map[string]net.Conn) {
 	conn.Write([]byte(serverMessage))
 	fmt.Println("Server : ", serverMessage)
 	name := nameResolution(conn, connections)
-	if name == "" {
-		return
-	}
 	defer func() {
 		conn.Close()
 		delete(connections, name)
