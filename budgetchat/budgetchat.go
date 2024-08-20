@@ -64,11 +64,11 @@ func handleRequest(conn *net.Conn, connections map[string]*net.Conn) {
 		}
 		clientMessage := string(buf[:n])
 		fmt.Println("Client: ", clientMessage)
-		fmt.Printf("[%v] %v\n", name, clientMessage)
+		fmt.Printf("[%v] %q\n", name, clientMessage)
 		if clientMessage != "" {
 			for otherClients, roomMembers := range connections {
 				if name != otherClients {
-					(*roomMembers).Write([]byte(fmt.Sprintf("[%s] %s\n", name, clientMessage)))
+					(*roomMembers).Write([]byte(fmt.Sprintf("[%s] %s", name, clientMessage)))
 				}
 			}
 		} else {
