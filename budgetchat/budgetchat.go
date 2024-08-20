@@ -15,7 +15,6 @@ func nameResolution(conn *net.Conn, connections map[string]*net.Conn) string {
 		return ""
 	}
 	clientName := string(buf[:n])
-	clientName, _ = strings.CutSuffix(clientName, "\n")
 	fmt.Println("Client : ", clientName)
 	pattern := `^[a-zA-Z0-9]+$`
 	r := regexp.MustCompile(pattern)
