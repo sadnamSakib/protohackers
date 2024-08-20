@@ -15,9 +15,14 @@ func nameResolution(conn *net.Conn, connections map[string]*net.Conn) string {
 		return ""
 	}
 	clientName := string(buf[:n])
+	if len(clientName) == 0 {
+		(*conn).Write([]byte("Invalid name."))
+		(*conn).Close()
+		return ""
+	}
 	clientName, _ = strings.CutSuffix(clientName, "\n")
 	fmt.Println("Client : ", clientName)
-	pattern := `^[a-zA-Z0-9]+$`
+	pattern := `^[[:alnum:]]{1,16}$`
 	r := regexp.MustCompile(pattern)
 	if !r.MatchString(clientName) {
 		(*conn).Write([]byte("Invalid name."))
