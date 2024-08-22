@@ -11,6 +11,10 @@ type Client struct {
 	name string
 	conn net.Conn
 }
+type Message struct {
+	Name string
+	Text string
+}
 
 func nameResolution(conn net.Conn, connections map[string]Client) (string, bool) {
 	buf := make([]byte, 1024)
@@ -45,7 +49,7 @@ func isValidName(name string) bool {
 	return r.MatchString(name)
 }
 
-func handleClient(client Client, join chan<- Client, leave chan<- Client, broadcast chan<- string, clients map[string]Client) {
+func handleClient(client Client, join chan<- Client, leave chan<- Client, broadcast chan<- Message, clients map[string]Client) {
 	defer func() {
 		leave <- client
 		client.conn.Close()
@@ -71,14 +75,17 @@ func handleClient(client Client, join chan<- Client, leave chan<- Client, broadc
 
 		clientMessage := strings.TrimSpace(string(buf[:n]))
 		if clientMessage != "" {
-			broadcast <- fmt.Sprintf("[%s] %s\n", client.name, clientMessage)
+			broadcast <- Message{
+				Name: client.name,
+				Text: fmt.Sprintf("[%s] %s\n", client.name, clientMessage),
+			}
 		} else {
 			break
 		}
 	}
 }
 
-func manageClients(join <-chan Client, leave <-chan Client, broadcast <-chan string, clients map[string]Client) {
+func manageClients(join <-chan Client, leave <-chan Client, broadcast <-chan Message, clients map[string]Client) {
 
 	for {
 		select {
@@ -102,7 +109,9 @@ func manageClients(join <-chan Client, leave <-chan Client, broadcast <-chan str
 
 		case message := <-broadcast:
 			for _, client := range clients {
-				client.conn.Write([]byte(message))
+				if client.name != message.Name {
+					client.conn.Write([]byte(message.Text))
+				}
 			}
 		}
 	}
@@ -120,7 +129,7 @@ func Run() {
 
 	join := make(chan Client)
 	leave := make(chan Client)
-	broadcast := make(chan string)
+	broadcast := make(chan Message)
 	clients := make(map[string]Client)
 	go manageClients(join, leave, broadcast, clients)
 
